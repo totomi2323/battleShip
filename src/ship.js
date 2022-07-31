@@ -1,43 +1,35 @@
-const shipCreator = (name, shipLength, shipPositionStart) => { 
-let shipName = name;
+import { gameBoard as gameBoard } from "./gameBoard";
+const shipCreator = (() => {
+  let ship;
 
-let shipPositions = [];
-let hitPositions = [];
+  const createShip = (name, shipLength) => {
+    let shipName = name;
+    ship = {
+      shipName,
+      shipLength,
+      hitPositions: [],
+      shipPositions: [],
+      sunk: false,
+      hit: function (target) {
+        this.hitPositions.push(target);
+        return this.hitPositions;
+      },
+      isSunk: function () {
+        let sunk;
+        if (this.shipLength === this.hitPositions.length) {
+          sunk = true;
+        } else {
+          sunk = false;
+        }
+        return sunk;
+      },
+    };
+    gameBoard.allShip[shipName] = ship;
 
-for (let i = 0; i < shipLength; i++) {
-   shipPositions.push((shipPositionStart+i))
-}
+    return ship;
+  };
 
-let ship = {
-    shipName,
-    shipLength,
-    shipPositions,
-    hitPositions
-}
+  return { createShip };
+})();
 
-const shoot = (target) => {
-let isHit;
-for  (let i = 0; i < shipLength; i++) {
-    if(shipPositions[i] === target) {
-       isHit = true; 
-       hitPositions.push(target);
-       break;
-    }
-    else {isHit = false;}
-}
-return isHit;
-} 
-
-const isSunk = () => {
-    sunk = false;
-    if (shipPositions.length === hitPositions.length) {
-        sunk = true;
-    } else { sunk = false}
-    return sunk;
-}
-
-
-return {ship, shoot, isSunk};
-}
-
-module.exports = shipCreator;
+export { shipCreator as shipCreator };

@@ -1,39 +1,36 @@
-const shipCreator = require("./ship");
+import {shipCreator as shipCreator} from "./ship.js"
 
 
-test("ship object's ship array position to be [1,2,3,4], name Tomi and length 4", ()=> {
-    const mediumShip = shipCreator("mediumShip", 4 , 1);
-    expect(mediumShip.ship)
-    .toEqual({shipName: "mediumShip", shipLength: 4, shipPositions: [1,2,3,4], hitPositions:[]})
-} )
 
-test("ship positions to be [2,3,4,5,6]", () => {
-    const longShip = shipCreator("dummy", 5, 2);
-    expect(longShip.ship.shipPositions).toEqual([2,3,4,5,6])
-})
+test("ship object's name Tomi and length 4 and ship not sunk", () => {
+  const mediumShip = shipCreator.createShip("mediumShip", 4);
+  expect(mediumShip).toEqual({
+    shipName: "mediumShip",
+    shipLength: 4,
+    hitPositions: [],
+    shipPositions: [],
+    sunk: false,
+    hit: expect.any(Function),
+    isSunk: expect.any(Function),
+  });
+});
 
 test("ship got hit on position 2", () => {
-    const mediumShip = shipCreator("mediumShip", 4 , 1);
-    expect(mediumShip.shoot(2)).toBe(true);
-
-})
-
-test("ship didn't got hit on position 2 because ship starts on position 3", () => {
-    const mediumShip = shipCreator("mediumShip", 4 , 3);
-    expect(mediumShip.shoot(2)).toBe(false);
-
-})
+  const mediumShip = shipCreator.createShip("mediumShip", 4);
+  expect(mediumShip.hit(2)).toEqual([2]);
+});
 
 test("ship got sunk", () => {
-    const smallShip = shipCreator("smallShip", 2, 3);
-    smallShip.shoot(3);
-    smallShip.shoot(4);
-    expect(smallShip.isSunk()).toBe(true);
-})
+  const smallShip = shipCreator.createShip("smallShip", 2);
+  smallShip.hit(3);
+  smallShip.hit(4);
+  expect(smallShip.isSunk()).toBe(true);
+});
 
-test("shit got hit on position 12 and 13", ()=> {
-    const mediumShip = shipCreator("mediumShip", 4 , 11);
-    mediumShip.shoot(12);
-    mediumShip.shoot(13);
-    expect(mediumShip.ship.hitPositions).toEqual([12,13]);
-})
+test("shit got hit on position 12 and 13 ", () => {
+  const mediumShip = shipCreator.createShip("mediumShip", 4);
+  mediumShip.hit(12);
+  mediumShip.hit(13);
+  expect(mediumShip.hitPositions).toEqual([12, 13]);
+});
+
