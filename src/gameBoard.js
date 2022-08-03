@@ -2,12 +2,20 @@ import {shipCreator as shipCreator} from "./ship.js"
 const gameBoard = (() => {
   let allShip = {};
   let missedShots = [];
+  let sunkedShips = 0;
   function createMap() {
     let shipMap = document.createElement("div");
     shipMap.classList.add("map");
     document.body.appendChild(shipMap);
   }
-
+  function createBoard()  {
+      for (let i= 1; i <= 100; i++) {
+        let square = document.createElement("div");
+        square.classList.add("square");
+        square.id = i;
+        document.querySelector(".map").appendChild(square);
+      }
+  }
   const placeShip = (shipPositionStart, direction, whichShip) => {
     let i;
     if (direction === "horizontal") {
@@ -24,7 +32,6 @@ const gameBoard = (() => {
   };
   const receiveAttack = (coordinate) => {
     let shipHit = false ;
-    let hitThisShip;
     for (const checkShip in allShip) {
       for (let i = 0; i < allShip[checkShip].shipPositions.length; i++) {
         if (allShip[checkShip].shipPositions[i] === coordinate) {
@@ -36,8 +43,23 @@ const gameBoard = (() => {
     if (shipHit === false) {missedShots.push(coordinate)}
     return shipHit;
   };
+  const isAllShipSunked = () => {
+    let sunkedShips = 0;
+    let all  = false;
+    let allShipLength = Object.keys(allShip).length;
+    for (const checkShip in allShip) {
+      allShip[checkShip].isSunk();
+      if (allShip[checkShip].sunk === true) {
+        sunkedShips += 1 ;
+      }
+    }
+    if (sunkedShips === allShipLength) {
+      all = true;
+    }
+    return all;
+  }
 
-  return { createMap, placeShip, receiveAttack, allShip, missedShots };
+  return { createMap, createBoard,  placeShip, receiveAttack, isAllShipSunked,  allShip, missedShots };
 })();
 
 export { gameBoard as gameBoard };

@@ -29,3 +29,21 @@ test("missed shot have been recorded on coordinate 13 and 16", () => {
     gameBoard.receiveAttack(16)
     expect(gameBoard.missedShots).toEqual([13,16])
 })
+test("check that all ships are sunked and returns a true value", () => {
+    gameBoard.receiveAttack(24);
+    gameBoard.receiveAttack(25);
+    gameBoard.receiveAttack(26);
+    gameBoard.receiveAttack(11);
+    gameBoard.receiveAttack(21);
+    gameBoard.receiveAttack(31);
+    gameBoard.receiveAttack(41);
+    gameBoard.receiveAttack(51);
+    expect(gameBoard.isAllShipSunked()).toBe(true);
+})
+
+test("add a small ship and check all ships are sunked is false", () => {
+    let smallShip = shipCreator.createShip("smallShip", 2);
+    gameBoard.placeShip(71, "horizontal", smallShip);
+    expect(gameBoard.isAllShipSunked()).toBe(false);
+})
+

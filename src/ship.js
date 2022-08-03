@@ -12,16 +12,16 @@ const shipCreator = (() => {
       sunk: false,
       hit: function (target) {
         this.hitPositions.push(target);
+        this.isSunk();
         return this.hitPositions;
       },
       isSunk: function () {
-        let sunk;
         if (this.shipLength === this.hitPositions.length) {
-          sunk = true;
+          this.sunk = true;
         } else {
-          sunk = false;
+          this.sunk = false;
         }
-        return sunk;
+        return this.sunk;
       },
     };
     gameBoard.allShip[shipName] = ship;
