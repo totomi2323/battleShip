@@ -6,7 +6,7 @@ const gameBoard = (() => {
   function createMap() {
     let shipMap = document.createElement("div");
     shipMap.classList.add("map");
-    document.body.appendChild(shipMap);
+    document.querySelector(".playField").appendChild(shipMap);
   }
   function createBoard()  {
       for (let i= 1; i <= 100; i++) {
