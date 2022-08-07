@@ -9,14 +9,15 @@ document.body.appendChild(playField);
 shipDock.displayShipDock();
 gameBoard.createMap();
 gameBoard.createBoard();
-
+let whichShip = "";
 function handleDragStart(e) {
   this.style.backgroundColor = "yellow";
+  whichShip = this.getAttribute("ship");
+  console.log(whichShip)
 }
 
 function handleDragEnd(e) {
   this.style.background = "grey";
-
   items.forEach(function (item) {
     item.classList.remove("over");
   });
@@ -27,7 +28,6 @@ function handleDragOver(e) {
 
 function handleDragEnter(e) {
   this.classList.add("over");
-  console.log(this);
 }
 
 function handleDragLeave(e) {
@@ -35,7 +35,10 @@ function handleDragLeave(e) {
 }
 
 function handleDrop(e) {
+  console.log(whichShip)
     e.stopPropagation(); 
+    let startingPosition = this.getAttribute("pos")
+    gameBoard.placeShip( startingPosition, "horizontal", gameBoard.allShip[whichShip]);
     return false;
   }
 

@@ -18,9 +18,10 @@ const shipDock = (() => {
       let shipSize = gameBoard.allShip[ship].shipLength;
       let choosenShip = document.createElement("div");
       choosenShip.classList.add("ship");
-      choosenShip.setAttribute("draggable",true)
-      choosenShip.classList.add(gameBoard.allShip[ship].shipName);
-      choosenShip.id = "s" + shipSize;
+      choosenShip.setAttribute("draggable",true);
+      choosenShip.setAttribute("ship", gameBoard.allShip[ship].shipName);
+      choosenShip.id = gameBoard.allShip[ship].shipName;
+      choosenShip.setAttribute("length", gameBoard.allShip[ship].shipLength);
       shipDock.appendChild(choosenShip);
       for (let i = 1; i <= shipSize; i++) {
         let square = document.createElement("div");
@@ -34,6 +35,7 @@ const shipDock = (() => {
   function changeRotation () {
     let shipD = document.querySelector(".shipDock");
     shipD.classList.toggle("vertical");
+    shipD.toggleAttribute("vertical");
   }
   const rotationButton = () => {
     let rotateButton = document.createElement("button");
