@@ -37,8 +37,15 @@ function handleDragLeave(e) {
 function handleDrop(e) {
   console.log(whichShip)
     e.stopPropagation(); 
+    let way = "horizontal";
+    let rotateButton = document.querySelector(".rotateButton");
+    if (rotateButton.hasAttribute("turned")) { 
+      way = "vertical"
+      console.log(way);
+    }
+    else {way = "horizontal"};
     let startingPosition = this.getAttribute("pos")
-    gameBoard.placeShip( startingPosition, "horizontal", gameBoard.allShip[whichShip]);
+    gameBoard.placeShip( startingPosition, way, gameBoard.allShip[whichShip]);
     return false;
   }
 

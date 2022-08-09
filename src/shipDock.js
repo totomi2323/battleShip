@@ -35,14 +35,16 @@ const shipDock = (() => {
   function changeRotation () {
     let shipD = document.querySelector(".shipDock");
     shipD.classList.toggle("vertical");
-    shipD.toggleAttribute("vertical");
   }
   const rotationButton = () => {
     let rotateButton = document.createElement("button");
     rotateButton.classList.add("rotateButton");
     rotateButton.innerHTML= "Rotate Ships";
     document.querySelector(".playField").appendChild(rotateButton);
-    rotateButton.addEventListener("click" ,changeRotation)
+    rotateButton.addEventListener("click" , function () { 
+      rotateButton.toggleAttribute("turned");
+      changeRotation() }
+      )
     
   }
   
