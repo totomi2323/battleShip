@@ -27,14 +27,14 @@ const gameBoard = (() => {
       if (direction === "horizontal") {
         for (i = 0; i < whichShip.shipLength; i++) {
           checkablePositions.push(shipPositionStart + i);
-          console.log(checkablePositions);
-          console.log("sg");
         }
       } else if (direction === "vertical") {
         for (i = 0; i < whichShip.shipLength; i++) {
           checkablePositions.push(shipPositionStart + i * 10);
         }
       }
+      console.log(checkablePositions);
+      console.log(checkShipOverlapping(checkablePositions))
       if (checkShipOverlapping(checkablePositions)) {
         whichShip.shipPositions = checkablePositions;
         if (direction === "horizontal") {
@@ -105,7 +105,7 @@ const gameBoard = (() => {
     map.insertBefore(thisShip, start);
     let allSquaresOfShip = document.querySelectorAll("#" + name + " .square");
     allSquaresOfShip.forEach((square) => {
-      let pos = positions[i] + 1;
+      let pos = positions[i];
 
       let verticalSquarePosition = document.querySelector(
         "#pos" + pos + ".square"
@@ -113,6 +113,7 @@ const gameBoard = (() => {
       map.insertBefore(square, verticalSquarePosition);
       square.classList.add("ship");
       square.setAttribute("ship", name);
+      square.setAttribute("pos", pos);
       square.id = name;
       i++;
     });
@@ -151,15 +152,18 @@ const gameBoard = (() => {
     let shipPositionsLength = positions.length;
     let validPosition = true;
     for (const ship in gameBoard.allShip) {
-      for (let i = 0; i <= gameBoard.allShip[ship].shipLength - 1; i++) {
+      console.log(gameBoard.allShip);
+      console.log(gameBoard.allShip[ship]);
+      for (let i = 0; i <= gameBoard.allShip[ship].shipPositions.length - 1; i++) {
         for (let j = 0; j <= shipPositionsLength - 1; j++) {
+          console.log(gameBoard.allShip[ship].shipPositions[i])
           if (gameBoard.allShip[ship].shipPositions[i] === positions[j]) {
             validPosition = false;
           }
         }
       }
-      return validPosition;
     }
+    return validPosition;
   }
   return {
     createMap,
