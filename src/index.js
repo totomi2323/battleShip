@@ -7,8 +7,10 @@ playField.classList.add("playField");
 document.body.appendChild(playField);
 
 shipDock.displayShipDock();
-gameBoard.createMap();
-gameBoard.createBoard();
+gameBoard.createMap("player");
+gameBoard.createMap("computer");
+gameBoard.createBoard("player");
+gameBoard.createBoard("computer");
 let whichShip = "";
 function handleDragStart(e) {
   this.style.backgroundColor = "yellow";
@@ -35,6 +37,7 @@ function handleDragLeave(e) {
 
 function handleDrop(e) {
     e.stopPropagation(); 
+    this.classList.remove("over");
     let way = "horizontal";
     let rotateButton = document.querySelector(".rotateButton");
     if (rotateButton.hasAttribute("turned")) { 
@@ -53,10 +56,34 @@ items.forEach(function (item) {
 });
 
 
-let squares = document.querySelectorAll(".map .square");
+let squares = document.querySelectorAll("#player.map .square");
 squares.forEach(function (squa ) {
     squa.addEventListener('dragover', handleDragOver);
     squa.addEventListener('dragenter', handleDragEnter);
     squa.addEventListener('dragleave', handleDragLeave);
     squa.addEventListener('drop', handleDrop);
+    squa.addEventListener('drop', isDockEmpty);
 })
+
+function setFunctionToSquares() {
+let allSquare = document.querySelectorAll("#player.map .square");
+allSquare.forEach(function (square) {
+  square.addEventListener("click", function shooting(e) {
+    let coordinate = this.getAttribute("pos");
+   if (gameBoard.receiveAttack(coordinate) === true) {
+    this.classList.add("hit")
+   } else {
+    this.classList.add("missed");
+   }
+   this.removeEventListener('click', shooting);
+  })
+})
+}
+function isDockEmpty() {
+  let dock = document.querySelector(".shipDock");
+  if (dock.childNodes.length === 0) {
+    setFunctionToSquares();
+  }
+}
+
+//. placeEnemyShips, but they don't actually have to be displayed .//

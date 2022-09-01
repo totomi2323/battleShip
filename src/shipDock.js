@@ -9,8 +9,17 @@ const shipDock = (() => {
     let submarine = shipCreator.createShip("submarine", 3);
     let destroyer = shipCreator.createShip("destroyer", 2);
   };
+  const makeEnemyShips = () => { 
+    let carrier = shipCreator.createEnemyShip("carrier", 5);
+    let battleShip = shipCreator.createEnemyShip("battleShip", 4);
+    let cruiser = shipCreator.createEnemyShip("cruiser", 3);
+    let submarine = shipCreator.createEnemyShip("submarine", 3);
+    let destroyer = shipCreator.createEnemyShip("destroyer", 2);
+  };
   const displayShipDock = () => {
     makeShips();
+    makeEnemyShips(); 
+    console.log(gameBoard.enemyShips);
     let shipDock = document.createElement("div");
     shipDock.classList.add("shipDock");
     document.querySelector(".playField").appendChild(shipDock);

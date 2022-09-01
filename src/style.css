@@ -14,6 +14,9 @@
     align-content: center;
     justify-content: center;
 }
+#computer.map {
+    background-color: #0ab2aa;
+}
 .square {  
     width: 48px;
     height:48px;;
@@ -53,4 +56,11 @@
 .rotateButton {
     width: 100px;
     height: 50px;
+}
+
+.square.hit {
+    background-color: red;
+}
+.square.missed {
+    background-color: white;
 }

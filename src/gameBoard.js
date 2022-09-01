@@ -1,20 +1,22 @@
 import { shipCreator as shipCreator } from "./ship.js";
 const gameBoard = (() => {
   let allShip = {};
+  let enemyShips = {};
   let missedShots = [];
   let sunkedShips = 0;
-  function createMap() {
+  function createMap(player) {
     let shipMap = document.createElement("div");
     shipMap.classList.add("map");
+    shipMap.id = player;
     document.querySelector(".playField").appendChild(shipMap);
   }
-  function createBoard() {
+  function createBoard(id) {
     for (let i = 1; i <= 100; i++) {
       let square = document.createElement("div");
       square.classList.add("square");
       square.id = "pos" + i;
       square.setAttribute("pos", i);
-      document.querySelector(".map").appendChild(square);
+      document.querySelector("#"+id+".map").appendChild(square);
     }
   }
   const placeShip = (shipPositionStart, direction, whichShip) => {
@@ -33,8 +35,6 @@ const gameBoard = (() => {
           checkablePositions.push(shipPositionStart + i * 10);
         }
       }
-      console.log(checkablePositions);
-      console.log(checkShipOverlapping(checkablePositions))
       if (checkShipOverlapping(checkablePositions)) {
         whichShip.shipPositions = checkablePositions;
         if (direction === "horizontal") {
@@ -54,19 +54,31 @@ const gameBoard = (() => {
   };
   const receiveAttack = (coordinate) => {
     let shipHit = false;
-    for (const checkShip in allShip) {
-      for (let i = 0; i < allShip[checkShip].shipPositions.length; i++) {
-        if (allShip[checkShip].shipPositions[i] === coordinate) {
+    coordinate = parseInt(coordinate);
+    console.log(gameBoard.allShip);
+    console.log(coordinate);
+    for (const checkShip in gameBoard.allShip) {
+      for (
+        let i = 0;
+        i <= gameBoard.allShip[checkShip].shipPositions.length - 1;
+        i++
+      ) {
+        console.log(gameBoard.allShip[checkShip].shipPositions[i]);
+        if (gameBoard.allShip[checkShip].shipPositions[i] === coordinate) {
           shipHit = true;
-          allShip[checkShip].hit(coordinate);
+          gameBoard.allShip[checkShip].hit(coordinate);
+          console.log("sg");
         }
       }
     }
     if (shipHit === false) {
       missedShots.push(coordinate);
     }
+    console.log(missedShots);
+    console.log(shipHit);
     return shipHit;
   };
+
   const isAllShipSunked = () => {
     let all = false;
     let allShipLength = Object.keys(allShip).length;
@@ -93,6 +105,7 @@ const gameBoard = (() => {
     let allSquaresOfShip = document.querySelectorAll("#" + name + " .square");
     allSquaresOfShip.forEach((square) => {
       square.id = "pos" + positions[i];
+      square.setAttribute("pos", positions[i]);
       i++;
     });
   }
@@ -152,11 +165,12 @@ const gameBoard = (() => {
     let shipPositionsLength = positions.length;
     let validPosition = true;
     for (const ship in gameBoard.allShip) {
-      console.log(gameBoard.allShip);
-      console.log(gameBoard.allShip[ship]);
-      for (let i = 0; i <= gameBoard.allShip[ship].shipPositions.length - 1; i++) {
+      for (
+        let i = 0;
+        i <= gameBoard.allShip[ship].shipPositions.length - 1;
+        i++
+      ) {
         for (let j = 0; j <= shipPositionsLength - 1; j++) {
-          console.log(gameBoard.allShip[ship].shipPositions[i])
           if (gameBoard.allShip[ship].shipPositions[i] === positions[j]) {
             validPosition = false;
           }
@@ -165,6 +179,7 @@ const gameBoard = (() => {
     }
     return validPosition;
   }
+
   return {
     createMap,
     createBoard,
@@ -172,6 +187,7 @@ const gameBoard = (() => {
     receiveAttack,
     isAllShipSunked,
     allShip,
+    enemyShips,
     missedShots,
   };
 })();
