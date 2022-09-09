@@ -66,16 +66,17 @@ squares.forEach(function (squa ) {
 })
 
 function setFunctionToSquares() {
-let allSquare = document.querySelectorAll("#player.map .square");
+let allSquare = document.querySelectorAll("#computer.map .square");
 allSquare.forEach(function (square) {
   square.addEventListener("click", function shooting(e) {
     let coordinate = this.getAttribute("pos");
-   if (gameBoard.receiveAttack(coordinate) === true) {
+   if (gameBoard.receiveAttack(coordinate, "computer") === true) {
     this.classList.add("hit")
    } else {
     this.classList.add("missed");
    }
    this.removeEventListener('click', shooting);
+   gameBoard.enemyShooting();
   })
 })
 }
@@ -83,7 +84,13 @@ function isDockEmpty() {
   let dock = document.querySelector(".shipDock");
   if (dock.childNodes.length === 0) {
     setFunctionToSquares();
+    gameBoard.setEnemeyShipsToBoard();
+    dock.style.display = "none";
   }
 }
 
-//. placeEnemyShips, but they don't actually have to be displayed .//
+
+
+//if all ship sunked game finished//
+// make a nicer UI//
+// take dom function and action functions apart in different JS files, aka clean up//

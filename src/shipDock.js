@@ -19,7 +19,6 @@ const shipDock = (() => {
   const displayShipDock = () => {
     makeShips();
     makeEnemyShips(); 
-    console.log(gameBoard.enemyShips);
     let shipDock = document.createElement("div");
     shipDock.classList.add("shipDock");
     document.querySelector(".playField").appendChild(shipDock);

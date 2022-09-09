@@ -2,8 +2,11 @@ import { shipCreator as shipCreator } from "./ship.js";
 const gameBoard = (() => {
   let allShip = {};
   let enemyShips = {};
-  let missedShots = [];
   let sunkedShips = 0;
+  let enemyMissedShots = [];
+  let playerMissedShots = [];
+  let hitToRemember = 0;
+  let tries = 1;
   function createMap(player) {
     let shipMap = document.createElement("div");
     shipMap.classList.add("map");
@@ -16,7 +19,7 @@ const gameBoard = (() => {
       square.classList.add("square");
       square.id = "pos" + i;
       square.setAttribute("pos", i);
-      document.querySelector("#"+id+".map").appendChild(square);
+      document.querySelector("#" + id + ".map").appendChild(square);
     }
   }
   const placeShip = (shipPositionStart, direction, whichShip) => {
@@ -35,7 +38,7 @@ const gameBoard = (() => {
           checkablePositions.push(shipPositionStart + i * 10);
         }
       }
-      if (checkShipOverlapping(checkablePositions)) {
+      if (checkShipOverlapping(checkablePositions, gameBoard.allShip)) {
         whichShip.shipPositions = checkablePositions;
         if (direction === "horizontal") {
           setShipHorizontaly(whichShip.shipName, shipPositionStart);
@@ -52,44 +55,90 @@ const gameBoard = (() => {
       }
     }
   };
-  const receiveAttack = (coordinate) => {
+  const placeEnemyShips = (whichEnemyShip) => {
+    let i;
+    let valid = false;
+    let direction;
+    let checkablePositions = [];
+    let startingPosition = Math.floor(Math.random() * (99 - 1 + 1) + 1);
+    if (Math.floor(Math.random() * (2 - 1 + 1) + 1) === 1) {
+      direction = "horizontal";
+    } else {
+      direction = "vertical";
+    }
+    startingPosition = parseInt(startingPosition);
+    if (
+      checkValidPosition(startingPosition, whichEnemyShip.shipLength, direction)
+    ) {
+      if (direction === "horizontal") {
+        for (i = 0; i < whichEnemyShip.shipLength; i++) {
+          checkablePositions.push(startingPosition + i);
+        }
+      } else if (direction === "vertical") {
+        for (i = 0; i < whichEnemyShip.shipLength; i++) {
+          checkablePositions.push(startingPosition + i * 10);
+        }
+      }
+      if (checkShipOverlapping(checkablePositions, gameBoard.enemyShips)) {
+        whichEnemyShip.shipPositions = checkablePositions;
+        valid = true;
+      }
+    }
+    return valid;
+  };
+
+  function setEnemeyShipsToBoard() {
+    let set = false;
+    for (const setThisShip in gameBoard.enemyShips) {
+      set = false;
+      while (set === false) {
+        if (placeEnemyShips(gameBoard.enemyShips[setThisShip])) {
+          set = true;
+        }
+      }
+    }
+  }
+
+  const receiveAttack = (coordinate, player) => {
     let shipHit = false;
+    let missedShots;
+    let target;
+    if (player === "computer") {
+      target = gameBoard.enemyShips;
+      missedShots = enemyMissedShots;
+    } else if (player === "player") {
+      target = gameBoard.allShip;
+      missedShots = playerMissedShots;
+    }
     coordinate = parseInt(coordinate);
-    console.log(gameBoard.allShip);
-    console.log(coordinate);
-    for (const checkShip in gameBoard.allShip) {
-      for (
-        let i = 0;
-        i <= gameBoard.allShip[checkShip].shipPositions.length - 1;
-        i++
-      ) {
-        console.log(gameBoard.allShip[checkShip].shipPositions[i]);
-        if (gameBoard.allShip[checkShip].shipPositions[i] === coordinate) {
+    for (const checkShip in target) {
+      for (let i = 0; i <= target[checkShip].shipPositions.length - 1; i++) {
+        if (target[checkShip].shipPositions[i] === coordinate) {
           shipHit = true;
-          gameBoard.allShip[checkShip].hit(coordinate);
-          console.log("sg");
+          target[checkShip].hit(coordinate);
+          isAllShipSunked(target);
         }
       }
     }
     if (shipHit === false) {
       missedShots.push(coordinate);
     }
-    console.log(missedShots);
-    console.log(shipHit);
     return shipHit;
   };
 
-  const isAllShipSunked = () => {
+  const isAllShipSunked = (target) => {
     let all = false;
-    let allShipLength = Object.keys(allShip).length;
-    for (const checkShip in allShip) {
-      allShip[checkShip].isSunk();
-      if (allShip[checkShip].sunk === true) {
+    for (const checkShip in target) {
+      target[checkShip].isSunk();
+      if (target[checkShip].sunk === true) {
         sunkedShips += 1;
       }
     }
-    if (sunkedShips === allShipLength) {
+    if (sunkedShips === 5) {
       all = true;
+      window.alert("all ship sunked");
+    } else {
+      sunkedShips = 0;
     }
     return all;
   };
@@ -111,7 +160,6 @@ const gameBoard = (() => {
   }
   function setShipVerticaly(name, positions) {
     let i = 0;
-
     let map = document.querySelector(".map");
     let start = document.querySelector("#pos" + positions[0]);
     let thisShip = document.querySelector("#" + name);
@@ -161,23 +209,83 @@ const gameBoard = (() => {
     }
     return validPosition;
   }
-  function checkShipOverlapping(positions) {
+  function checkShipOverlapping(positions, player) {
     let shipPositionsLength = positions.length;
     let validPosition = true;
-    for (const ship in gameBoard.allShip) {
-      for (
-        let i = 0;
-        i <= gameBoard.allShip[ship].shipPositions.length - 1;
-        i++
-      ) {
+    for (const ship in player) {
+      for (let i = 0; i <= player[ship].shipPositions.length - 1; i++) {
         for (let j = 0; j <= shipPositionsLength - 1; j++) {
-          if (gameBoard.allShip[ship].shipPositions[i] === positions[j]) {
+          if (player[ship].shipPositions[i] === positions[j]) {
             validPosition = false;
           }
         }
       }
     }
     return validPosition;
+  }
+  function enemyShooting() {
+    let set = false;
+    while (!set) {
+    let target;
+    if (hitToRemember === 0) {
+    target = Math.floor(Math.random() * (99 - 1 + 1) + 1);
+    } else {
+      console.log("remember:" +hitToRemember);
+      target = shootAround(hitToRemember, tries);
+      tries++;
+    }
+    for (let i = 0; i <= enemyMissedShots.length; i++) {
+      if (target !== enemyMissedShots[i]) {
+        set = true;
+      }
+      else {set = false};
+    }
+    if (set) {
+      let playerMap = document.querySelector("#player");
+      let targetSquare = playerMap.querySelector('[pos="'+target+'"]')
+      receiveAttack(target, "player");
+      let shoot = receiveAttack(target, "player");
+      if (shoot) {
+        targetSquare.classList.add("hit");
+        let direction = target - hitToRemember;
+        // if direction 1 hit and next is missed, go the other way around -1//
+        if (direction = 1) {
+          tries = 1;
+        } else if (direction = -1) {
+          tries = 2
+        } else if (direction = -10) {
+          tries = 3
+        } else if (direction = 10) {
+          tries = 4
+        }
+        hitToRemember = target;
+        
+      } else {
+        targetSquare.classList.add("missed");
+        tries = 0;
+      }
+    }
+    }
+  }
+
+
+  function shootAround(target, tries) {
+    let newTarget;
+    if (tries === 1) {
+      newTarget = target + 1;
+    } else if (tries === 2) {
+      newTarget = target - 1;
+    } else if (tries === 3) {
+      newTarget = target - 10;
+    } else if (tries === 4) {
+      newTarget = target + 10;
+    } else {
+      hitToRemember = 0;
+      tries = 0;
+    }
+    console.log(tries);
+    console.log("new target:" +newTarget);
+    return newTarget;
   }
 
   return {
@@ -186,9 +294,10 @@ const gameBoard = (() => {
     placeShip,
     receiveAttack,
     isAllShipSunked,
+    setEnemeyShipsToBoard,
+    enemyShooting,
     allShip,
     enemyShips,
-    missedShots,
   };
 })();
 
