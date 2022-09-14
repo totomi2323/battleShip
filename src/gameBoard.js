@@ -4,9 +4,9 @@ const gameBoard = (() => {
   let enemyShips = {};
   let sunkedShips = 0;
   let enemyMissedShots = [];
+  let enemyShots = [];
   let playerMissedShots = [];
   let hitToRemember = 0;
-  let tries = 1;
   function createMap(player) {
     let shipMap = document.createElement("div");
     shipMap.classList.add("map");
@@ -123,6 +123,9 @@ const gameBoard = (() => {
     if (shipHit === false) {
       missedShots.push(coordinate);
     }
+    if (player === "player") {
+      enemyShots.push(coordinate);
+    }
     return shipHit;
   };
 
@@ -223,68 +226,85 @@ const gameBoard = (() => {
     }
     return validPosition;
   }
+  let direction = "";
+  let lastHit = Boolean;
+  let firstHit = 0;
+
   function enemyShooting() {
     let set = false;
-    while (!set) {
-    let target;
-    if (hitToRemember === 0) {
-    target = Math.floor(Math.random() * (99 - 1 + 1) + 1);
-    } else {
-      console.log("remember:" +hitToRemember);
-      target = shootAround(hitToRemember, tries);
-      tries++;
-    }
-    for (let i = 0; i <= enemyMissedShots.length; i++) {
-      if (target !== enemyMissedShots[i]) {
-        set = true;
-      }
-      else {set = false};
-    }
-    if (set) {
-      let playerMap = document.querySelector("#player");
-      let targetSquare = playerMap.querySelector('[pos="'+target+'"]')
-      receiveAttack(target, "player");
-      let shoot = receiveAttack(target, "player");
-      if (shoot) {
-        targetSquare.classList.add("hit");
-        let direction = target - hitToRemember;
-        // if direction 1 hit and next is missed, go the other way around -1//
-        if (direction = 1) {
-          tries = 1;
-        } else if (direction = -1) {
-          tries = 2
-        } else if (direction = -10) {
-          tries = 3
-        } else if (direction = 10) {
-          tries = 4
-        }
-        hitToRemember = target;
-        
+      console.log("AllEnemyShots: "+ enemyShots);
+      let target;
+      if (hitToRemember === 0) {
+        target = Math.floor(Math.random() * (99 - 1 + 1) + 1);
       } else {
-        targetSquare.classList.add("missed");
-        tries = 0;
+        target = shootAround(hitToRemember, direction);
       }
-    }
-    }
+      for (let i = 0; i <= enemyShots.length; i++) {
+        if (target === enemyShots[i]) {
+          set = false;
+           console.log(enemyShots[i]);
+            hitToRemember = 0;
+            if (lastHit === true) {
+              lastHit = false;
+            }
+            console.log("IT IS FALSE")
+            enemyShooting();
+            break;
+        } else {
+          set = true;
+        }
+      }
+      if (set) {
+        let playerMap = document.querySelector("#player");
+        let targetSquare = playerMap.querySelector('[pos="' + target + '"]');
+        let shoot = receiveAttack(target, "player");
+        if (shoot) {
+          if (firstHit === 0) {
+            firstHit = target;
+            direction = "right";
+          }
+          targetSquare.classList.add("hit");
+          hitToRemember = target;
+          lastHit = true;
+        } else {
+          targetSquare.classList.add("missed");
+          if (lastHit === true && direction === "right") {
+            direction = "left";
+            hitToRemember = firstHit;
+          } else if (lastHit === true && direction === "left") {
+            direction = "up";
+            hitToRemember = firstHit;
+          } else if (lastHit === true && direction === "up") {
+            direction = "down";
+            hitToRemember = firstHit;
+          } else {
+            lastHit = false;
+            direction = "";
+            firstHit = 0;
+            hitToRemember = 0;
+          }
+        }
+      }
   }
 
-
-  function shootAround(target, tries) {
+  function shootAround(target, direction) {
     let newTarget;
-    if (tries === 1) {
+    if (direction === "right") {
       newTarget = target + 1;
-    } else if (tries === 2) {
+    } else if (direction === "left") {
       newTarget = target - 1;
-    } else if (tries === 3) {
+    } else if (direction === "up") {
       newTarget = target - 10;
-    } else if (tries === 4) {
+    } else if (direction === "down") {
       newTarget = target + 10;
     } else {
+      direction = "";
+      lastHit = false;
       hitToRemember = 0;
-      tries = 0;
     }
-    console.log(tries);
-    console.log("new target:" +newTarget);
+    if (newTarget >= 100 || newTarget <= 1) {
+      newTarget = Math.floor(Math.random() * (99 - 1 + 1) + 1);
+    }
     return newTarget;
   }
 

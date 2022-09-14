@@ -91,6 +91,6 @@ function isDockEmpty() {
 
 
 
-//if all ship sunked game finished//
+//if all ship sunked game finished : SET a nicer display for end of the game//
 // make a nicer UI//
 // take dom function and action functions apart in different JS files, aka clean up//
