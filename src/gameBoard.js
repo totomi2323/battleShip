@@ -7,21 +7,8 @@ const gameBoard = (() => {
   let enemyShots = [];
   let playerMissedShots = [];
   let hitToRemember = 0;
-  function createMap(player) {
-    let shipMap = document.createElement("div");
-    shipMap.classList.add("map");
-    shipMap.id = player;
-    document.querySelector(".playField").appendChild(shipMap);
-  }
-  function createBoard(id) {
-    for (let i = 1; i <= 100; i++) {
-      let square = document.createElement("div");
-      square.classList.add("square");
-      square.id = "pos" + i;
-      square.setAttribute("pos", i);
-      document.querySelector("#" + id + ".map").appendChild(square);
-    }
-  }
+  let gameFinished = false;
+  
   const placeShip = (shipPositionStart, direction, whichShip) => {
     let i;
     let checkablePositions = [];
@@ -116,7 +103,7 @@ const gameBoard = (() => {
         if (target[checkShip].shipPositions[i] === coordinate) {
           shipHit = true;
           target[checkShip].hit(coordinate);
-          isAllShipSunked(target);
+          isAllShipSunked(target, player);
         }
       }
     }
@@ -128,8 +115,20 @@ const gameBoard = (() => {
     }
     return shipHit;
   };
+  function playerShooting() {
+    let coordinate = this.getAttribute("pos");
+    if (receiveAttack(coordinate, "computer") === true) {
+      this.classList.add("hit");
+    } else {
+      this.classList.add("missed");
+    }
+    this.removeEventListener("click", playerShooting);
+    if (!gameFinished) {
+      enemyShooting();
+    }
+  }
 
-  const isAllShipSunked = (target) => {
+  const isAllShipSunked = (target, player) => {
     let all = false;
     for (const checkShip in target) {
       target[checkShip].isSunk();
@@ -138,8 +137,19 @@ const gameBoard = (() => {
       }
     }
     if (sunkedShips === 5) {
+      gameFinished = true;
       all = true;
-      window.alert("all ship sunked");
+      let name = "";
+      let allSquare = document.querySelectorAll("#computer.map .square");
+      allSquare.forEach(function (square) {
+        square.removeEventListener("click", playerShooting);
+      });
+      if (player === "player") {
+        name = "Computer";
+      } else {
+        name = document.querySelector(".playerName").innerHTML;
+      }
+      window.alert("All ships have been sunked. " + name + " had won the game");
     } else {
       sunkedShips = 0;
     }
@@ -232,59 +242,67 @@ const gameBoard = (() => {
 
   function enemyShooting() {
     let set = false;
-      console.log("AllEnemyShots: "+ enemyShots);
-      let target;
-      if (hitToRemember === 0) {
-        target = Math.floor(Math.random() * (99 - 1 + 1) + 1);
+    let target;
+    if (hitToRemember === 0) {
+      target = Math.floor(Math.random() * (99 - 1 + 1) + 1);
+    } else {
+      target = shootAround(hitToRemember, direction);
+    }
+    for (let i = 0; i <= enemyShots.length; i++) {
+      if (target === enemyShots[i]) {
+        set = false;
+        if (lastHit === true && direction === "right") {
+          direction = "left";
+          hitToRemember = firstHit;
+        } else if (lastHit === true && direction === "left") {
+          direction = "up";
+          hitToRemember = firstHit;
+        } else if (lastHit === true && direction === "up") {
+          direction = "down";
+          hitToRemember = firstHit;
+        } else {
+          lastHit = false;
+          direction = "";
+          firstHit = 0;
+          hitToRemember = 0;
+        }
+        enemyShooting();
+        break;
       } else {
-        target = shootAround(hitToRemember, direction);
+        set = true;
       }
-      for (let i = 0; i <= enemyShots.length; i++) {
-        if (target === enemyShots[i]) {
-          set = false;
-           console.log(enemyShots[i]);
-            hitToRemember = 0;
-            if (lastHit === true) {
-              lastHit = false;
-            }
-            console.log("IT IS FALSE")
-            enemyShooting();
-            break;
+    }
+    if (set) {
+      let playerMap = document.querySelector("#player");
+      let targetSquare = playerMap.querySelector('[pos="' + target + '"]');
+      let shoot = receiveAttack(target, "player");
+      if (shoot) {
+        if (firstHit === 0) {
+          firstHit = target;
+          direction = "right";
+        }
+        targetSquare.classList.add("hit");
+        hitToRemember = target;
+        lastHit = true;
+      } else {
+        targetSquare.classList.add("missed");
+        if (lastHit === true && direction === "right") {
+          direction = "left";
+          hitToRemember = firstHit;
+        } else if (lastHit === true && direction === "left") {
+          direction = "up";
+          hitToRemember = firstHit;
+        } else if (lastHit === true && direction === "up") {
+          direction = "down";
+          hitToRemember = firstHit;
         } else {
-          set = true;
+          lastHit = false;
+          direction = "";
+          firstHit = 0;
+          hitToRemember = 0;
         }
       }
-      if (set) {
-        let playerMap = document.querySelector("#player");
-        let targetSquare = playerMap.querySelector('[pos="' + target + '"]');
-        let shoot = receiveAttack(target, "player");
-        if (shoot) {
-          if (firstHit === 0) {
-            firstHit = target;
-            direction = "right";
-          }
-          targetSquare.classList.add("hit");
-          hitToRemember = target;
-          lastHit = true;
-        } else {
-          targetSquare.classList.add("missed");
-          if (lastHit === true && direction === "right") {
-            direction = "left";
-            hitToRemember = firstHit;
-          } else if (lastHit === true && direction === "left") {
-            direction = "up";
-            hitToRemember = firstHit;
-          } else if (lastHit === true && direction === "up") {
-            direction = "down";
-            hitToRemember = firstHit;
-          } else {
-            lastHit = false;
-            direction = "";
-            firstHit = 0;
-            hitToRemember = 0;
-          }
-        }
-      }
+    }
   }
 
   function shootAround(target, direction) {
@@ -309,13 +327,9 @@ const gameBoard = (() => {
   }
 
   return {
-    createMap,
-    createBoard,
     placeShip,
-    receiveAttack,
-    isAllShipSunked,
     setEnemeyShipsToBoard,
-    enemyShooting,
+    playerShooting,
     allShip,
     enemyShips,
   };

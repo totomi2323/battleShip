@@ -9,7 +9,7 @@ const shipDock = (() => {
     let submarine = shipCreator.createShip("submarine", 3);
     let destroyer = shipCreator.createShip("destroyer", 2);
   };
-  const makeEnemyShips = () => { 
+  const makeEnemyShips = () => {
     let carrier = shipCreator.createEnemyShip("carrier", 5);
     let battleShip = shipCreator.createEnemyShip("battleShip", 4);
     let cruiser = shipCreator.createEnemyShip("cruiser", 3);
@@ -18,7 +18,7 @@ const shipDock = (() => {
   };
   const displayShipDock = () => {
     makeShips();
-    makeEnemyShips(); 
+    makeEnemyShips();
     let shipDock = document.createElement("div");
     shipDock.classList.add("shipDock");
     document.querySelector(".playField").appendChild(shipDock);
@@ -26,7 +26,7 @@ const shipDock = (() => {
       let shipSize = gameBoard.allShip[ship].shipLength;
       let choosenShip = document.createElement("div");
       choosenShip.classList.add("ship");
-      choosenShip.setAttribute("draggable",true);
+      choosenShip.setAttribute("draggable", true);
       choosenShip.setAttribute("ship", gameBoard.allShip[ship].shipName);
       choosenShip.id = gameBoard.allShip[ship].shipName;
       choosenShip.setAttribute("length", gameBoard.allShip[ship].shipLength);
@@ -40,23 +40,28 @@ const shipDock = (() => {
     rotationButton();
   };
 
-  function changeRotation () {
-    let shipD = document.querySelector(".shipDock");
-    shipD.classList.toggle("vertical");
+  function changeRotation() {
+    let direction;
+    let ships = document.querySelectorAll(".shipDock .ship");
+    ships.forEach((ship) => {
+      direction = ship.style.flexDirection;
+      if (direction === "column") {
+        ship.style.flexDirection = "row";
+      } else if (direction === "row") {
+        ship.style.flexDirection = "column";
+      }
+    });
   }
   const rotationButton = () => {
     let rotateButton = document.createElement("button");
     rotateButton.classList.add("rotateButton");
-    rotateButton.innerHTML= "Rotate Ships";
+    rotateButton.innerHTML = "Rotate Ships";
     document.querySelector(".playField").appendChild(rotateButton);
-    rotateButton.addEventListener("click" , function () { 
+    rotateButton.addEventListener("click", function () {
       rotateButton.toggleAttribute("turned");
-      changeRotation() }
-      )
-    
-  }
-  
-
+      changeRotation();
+    });
+  };
   return { displayShipDock };
 })();
 
